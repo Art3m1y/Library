@@ -40,8 +40,6 @@ public class PersonController {
     public String personById(@PathVariable("id") int id, Model model) {
         model.addAttribute("person", personDAO.getPersonByID(id));
 
-        model.addAttribute("bookList", bookDAO.getListBookByPersonID(id));
-
         return "person/person";
     }
 

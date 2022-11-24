@@ -11,13 +11,13 @@
     <p th:text="${person.getName()}"></p>
     <p th:text="${person.getYear_of_birth()}"></p>
 
-    <div th:if="${bookList} == null">
+    <div th:if="${person.getBookList()} == null">
         <p>Человек пока не взял ни одной книги</p>
     </div>
 
-    <div th:if="${bookList} != null" >
+    <div th:if="${person.getBookList()} != null" >
         <h3>Книги:</h3>
-        <div th:each="book:${bookList}">
+        <div th:each="book:${person.getBookList()}">
             <p th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYear()}"></p>
         </div>
     </div>

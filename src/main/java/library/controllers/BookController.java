@@ -34,27 +34,6 @@ public class BookController {
         return "book/list";
     }
 
-    @GetMapping("/list/{id}")
-    public String bookById(@PathVariable("id") int id, Model model) {
-        Book book = bookDAO.getBookByID(id);
-        Book bookPerson = new Book();
-        Person person = null;
-        List<Person> personList = personDAO.getAllPerson();
-
-        model.addAttribute("book", book);
-        model.addAttribute("bookPerson", bookPerson);
-        model.addAttribute("personList", personList);
-
-        if (book.getPerson_id() == null) {
-            model.addAttribute("person", person);
-        } else {
-            person = personDAO.getPersonByID(book.getPerson_id());
-            model.addAttribute("person", person);
-        }
-
-        return "book/book";
-    }
-
     @GetMapping("/list/new")
     public String newGetBook(@ModelAttribute("book") Book book) {
         return "book/new";
@@ -71,6 +50,19 @@ public class BookController {
         bookDAO.saveBook(book);
 
         return "redirect:/book/list";
+    }
+
+    @GetMapping("/list/{id}")
+    public String bookById(@PathVariable("id") int id, Model model) {
+        Book book = bookDAO.getBookByID(id);
+        List<Person> personList = personDAO.getAllPerson();
+        Person person = new Person();
+
+        model.addAttribute("book", book);
+        model.addAttribute("person", person);
+        model.addAttribute("personList", personList);
+
+        return "book/book";
     }
 
     @DeleteMapping("/list/{id}")
@@ -101,8 +93,8 @@ public class BookController {
     }
 
     @PatchMapping("/list/{id}/assign")
-    public String assignBook(@PathVariable int id, @ModelAttribute Book book) {
-        bookDAO.assignBook(id, book);
+    public String assignBook(@PathVariable int id, @ModelAttribute Person person) {
+        bookDAO.assignBook(id, person);
 
         return "redirect:/book/list/{id}";
     }
