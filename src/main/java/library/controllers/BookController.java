@@ -1,40 +1,51 @@
 package library.controllers;
 
-import library.daos.BookDAO;
-import library.daos.PersonDAO;
 import library.models.Book;
 import library.models.Person;
+import library.services.BookService;
+import library.services.PersonService;
 import library.utils.BookValidator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/book")
 public class BookController {
-    private final PersonDAO personDAO;
-    private final BookDAO bookDAO;
+    private final PersonService personService;
+
+    private final BookService bookService;
 
     private final BookValidator bookValidator;
 
-    public BookController(PersonDAO personDAO, BookDAO bookDAO, BookValidator bookValidator) {
-        this.personDAO = personDAO;
-        this.bookDAO = bookDAO;
+    public BookController(PersonService personService, BookService bookService, BookValidator bookValidator) {
+        this.personService = personService;
+        this.bookService = bookService;
         this.bookValidator = bookValidator;
     }
 
     @GetMapping("/list")
-    public String listWithBooks(Model model) {
-        model.addAttribute("books", bookDAO.getListBook());
+    public String listWithBooks(HttpServletRequest httpServletRequest, Model model) {
+        model.addAttribute("books", bookService.findAll(httpServletRequest.getParameter("page"), httpServletRequest.getParameter("book_on_page"), httpServletRequest.getParameter("sort_by_year")));
 
         return "book/list";
     }
 
-    @GetMapping("/list/new")
+    @GetMapping("/list/{id}")
+    public String bookById(@PathVariable("id") int id, Model model) {
+        model.addAttribute("book", bookService.findById(id));
+        model.addAttribute("person", new Person());
+        model.addAttribute("personList", personService.findAll());
+
+        return "book/book";
+    }
+
+   @GetMapping("/list/new")
     public String newGetBook(@ModelAttribute("book") Book book) {
         return "book/new";
     }
@@ -47,34 +58,21 @@ public class BookController {
             return "book/new";
         }
 
-        bookDAO.saveBook(book);
+        bookService.save(book);
 
         return "redirect:/book/list";
     }
 
-    @GetMapping("/list/{id}")
-    public String bookById(@PathVariable("id") int id, Model model) {
-        Book book = bookDAO.getBookByID(id);
-        List<Person> personList = personDAO.getAllPerson();
-        Person person = new Person();
-
-        model.addAttribute("book", book);
-        model.addAttribute("person", person);
-        model.addAttribute("personList", personList);
-
-        return "book/book";
-    }
-
     @DeleteMapping("/list/{id}")
     public String deletePerson(@PathVariable("id") int id) {
-        bookDAO.deleteBook(id);
+        bookService.deleteById(id);
 
         return "redirect:/book/list";
     }
 
     @GetMapping("/list/{id}/edit")
     public String editGetPerson(@PathVariable("id") int id, Model model) {
-        Book book = bookDAO.getBookByID(id);
+        Book book = bookService.findById(id);
 
         model.addAttribute("book", book);
 
@@ -87,16 +85,32 @@ public class BookController {
             return "book/edit";
         }
 
-        bookDAO.editBook(id, book);
+        bookService.update(id, book);
 
         return "redirect:/book/list/{id}";
     }
 
     @PatchMapping("/list/{id}/assign")
     public String assignBook(@PathVariable int id, @ModelAttribute Person person) {
-        bookDAO.assignBook(id, person);
+        bookService.assign(id, person);
 
         return "redirect:/book/list/{id}";
     }
 
+    @GetMapping("/list/search")
+    public String searchBook(@RequestParam Optional<String> name, Model model) {
+        model.addAttribute("book", new Book());
+
+        if (name.isPresent()) {
+            Book book = bookService.searchBook(name.get());
+            if (book != null) {
+                model.addAttribute("searchedBook", book);
+            }
+            return "book/search";
+        } else {
+            return "book/search";
+        }
+    }
+
 }
+

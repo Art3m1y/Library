@@ -18,7 +18,7 @@
     <div th:if="${person.getBookList()} != null" >
         <h3>Книги:</h3>
         <div th:each="book:${person.getBookList()}">
-            <p th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYear()}"></p>
+            <p th:text="${book.getName()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getYear()}" th:style="${book.isOverdue() ? 'color:red' : 'color:black'}"></p>
         </div>
     </div>
 

@@ -1,9 +1,10 @@
 package library.models;
 
-import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.util.Date;
 
 @Entity
 @Table
@@ -16,6 +17,13 @@ public class Book {
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "person_id")
     private Person person;
+
+    @Column()
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date assignedAt;
+
+    @Transient
+    private boolean overdue;
 
     @Column
     @NotNull(message = "Поле с названием произведения не может быть пустым")
@@ -40,6 +48,22 @@ public class Book {
         this.name = name;
         this.author = author;
         this.year = year;
+    }
+
+    public boolean isOverdue() {
+        if ((new Date().getTime() - assignedAt.getTime()) > 864000000) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Date getAssignedAt() {
+        return assignedAt;
+    }
+
+    public void setAssignedAt(Date assignedAt) {
+        this.assignedAt = assignedAt;
     }
 
     public Person getPerson() {
@@ -80,16 +104,5 @@ public class Book {
 
     public void setYear(int year) {
         this.year = year;
-    }
-
-    @Override
-    public String toString() {
-        return "Book{" +
-                "book_id=" + book_id +
-                ", person=" + person.getName() +
-                ", name='" + name + '\'' +
-                ", author='" + author + '\'' +
-                ", year=" + year +
-                '}';
     }
 }

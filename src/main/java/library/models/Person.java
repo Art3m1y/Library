@@ -70,14 +70,4 @@ public class Person {
     public void setPerson_id(int personId) {
         this.person_id = personId;
     }
-
-    @Override
-    public String toString() {
-        return "Person{" +
-                "person_id=" + person_id +
-                ", name='" + name + '\'' +
-                ", year_of_birth=" + year_of_birth +
-                ", bookList=" + bookList +
-                '}';
-    }
 }
